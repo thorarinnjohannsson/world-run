@@ -14,11 +14,11 @@ class Obstacle {
         this.scored = false; // Whether we've awarded score for this obstacle
         this.closeCall = false; // Whether player barely cleared it
         
-        // Color setup
+    // Color setup - High contrast, bright colors
         if (isTerrain) {
-            this.color = '#5D4037'; // Dark brown for terrain
+            this.color = '#FFFF00'; // Bright yellow for terrain
         } else if (isFloating) {
-            this.color = '#6A5ACD'; // SlateBlue for floating
+            this.color = '#00FFFF'; // Bright cyan for floating
         } else {
             this.color = this.getColorForLevel(level);
         }
@@ -26,9 +26,9 @@ class Obstacle {
         this.landedOn = false; // Track if player landed on it
     }
     
-    // Get color based on level
+    // Get color based on level - Bright, high contrast colors
     getColorForLevel(level) {
-        const colors = ['#8B4513', '#A0522D', '#CD853F', '#DEB887'];
+        const colors = ['#FFFF00', '#00FFFF', '#FFFFFF', '#FF6600'];
         return colors[level - 1] || colors[0];
     }
     
@@ -40,136 +40,99 @@ class Obstacle {
     // Draw obstacle
     draw(ctx) {
         if (this.isTerrain) {
-            // Terrain style (elevated ground)
-            // Soil body
-            ctx.fillStyle = '#8B4513'; // Brown soil
+            // Bright Yellow Terrain (elevated platform)
+            ctx.fillStyle = '#FFD700'; // Gold yellow base
             ctx.fillRect(this.x, this.y, this.width, this.height);
             
-            // Extend visual to bottom of screen to look like solid ground
+            // Extend to bottom
             const bottomToFill = ctx.canvas.height - (this.y + this.height);
             if (bottomToFill > 0) {
                 ctx.fillRect(this.x, this.y + this.height, this.width, bottomToFill);
             }
             
-            // Grass Top Layer
-            ctx.fillStyle = '#66BB6A';
+            // Bright Top Layer
+            ctx.fillStyle = '#FFFF00'; // Pure bright yellow
             ctx.fillRect(this.x, this.y, this.width, 10);
             
-            // Pixelated Grass Edge (Checkerboard pattern)
-            ctx.fillStyle = '#4CAF50';
-            const pixelSize = 5;
-            for (let i = 0; i < this.width; i += pixelSize) {
-                if (Math.floor(i / pixelSize) % 2 === 0) {
-                    ctx.fillRect(this.x + i, this.y, pixelSize, 10);
-                }
-            }
+            // White accent line for maximum visibility
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(this.x, this.y + 10, this.width, 3);
             
-            // Dark Green Grass Border
-            ctx.fillStyle = '#2E7D32';
-            ctx.fillRect(this.x, this.y + 10, this.width, 4);
-            
-            // Side Border (Left/Right edges)
-            ctx.strokeStyle = '#3E2723';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(this.x, this.y);
-            ctx.lineTo(this.x, this.y + this.height + bottomToFill);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(this.x + this.width, this.y);
-            ctx.lineTo(this.x + this.width, this.y + this.height + bottomToFill);
-            ctx.stroke();
+            // Strong glow effect
+            ctx.strokeStyle = '#FFFF00';
+            ctx.lineWidth = 4;
+            ctx.shadowColor = '#FFFF00';
+            ctx.shadowBlur = 20;
+            ctx.strokeRect(this.x, this.y, this.width, this.height + bottomToFill);
+            ctx.shadowBlur = 0;
             
             return;
         }
         
         if (this.isFloating) {
-            // Floating platform style (Wood/Log pixel style)
-            // Main block
-            ctx.fillStyle = '#8D6E63'; // Light brown wood
+            // Bright Cyan Floating Platform
+            ctx.fillStyle = '#00FFFF'; // Bright cyan
             ctx.fillRect(this.x, this.y, this.width, this.height);
             
-            // Wood grain / planks
-            ctx.fillStyle = '#5D4037';
-            for(let i=10; i<this.width; i+=30) {
-                ctx.fillRect(this.x + i, this.y, 2, this.height);
-            }
+            // Strong neon glow border
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = '#00FFFF';
+            ctx.shadowBlur = 20;
+            ctx.strokeRect(this.x, this.y, this.width, this.height);
+            ctx.shadowBlur = 0;
             
-            // Top highlight
-            ctx.fillStyle = '#A1887F';
+            // Bright white highlight
+            ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(this.x, this.y, this.width, 4);
             
-            // Bottom shadow
-            ctx.fillStyle = '#4E342E';
-            ctx.fillRect(this.x, this.y + this.height - 4, this.width, 4);
-            
-            // Border
-            ctx.strokeStyle = '#3E2723';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(this.x, this.y, this.width, this.height);
             return;
         }
 
-        // PIXEL BLOCK OBSTACLE (Standard)
-        // Main Block Color
-        ctx.fillStyle = '#A0522D'; // Sienna brown
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        // BRIGHT TRIANGULAR SPIKES (Standard Obstacles)
+        ctx.save();
         
-        const borderSize = 4;
+        // Main spike color - BRIGHT
+        ctx.fillStyle = this.color;
         
-        // Light Top/Left (Bevel)
-        ctx.fillStyle = '#CD853F'; // Lighter brown
-        ctx.fillRect(this.x, this.y, this.width, borderSize);
-        ctx.fillRect(this.x, this.y, borderSize, this.height);
+        // Draw triangle spike
+        ctx.beginPath();
+        ctx.moveTo(this.x + this.width / 2, this.y); // Top point
+        ctx.lineTo(this.x, this.y + this.height); // Bottom left
+        ctx.lineTo(this.x + this.width, this.y + this.height); // Bottom right
+        ctx.closePath();
+        ctx.fill();
         
-        // Dark Bottom/Right (Bevel)
-        ctx.fillStyle = '#5D4037'; // Dark brown
-        ctx.fillRect(this.x + this.width - borderSize, this.y, borderSize, this.height);
-        ctx.fillRect(this.x, this.y + this.height - borderSize, this.width, borderSize);
+        // Strong white border for maximum visibility
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 20;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
         
-        // Inner Face
-        ctx.fillStyle = '#8B4513'; // SaddleBrown
-        ctx.fillRect(this.x + borderSize, this.y + borderSize, this.width - 2*borderSize, this.height - 2*borderSize);
+        // Bright white highlight (larger)
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.moveTo(this.x + this.width / 2, this.y + 8);
+        ctx.lineTo(this.x + 8, this.y + this.height - 8);
+        ctx.lineTo(this.x + this.width / 2, this.y + this.height / 2 + 5);
+        ctx.closePath();
+        ctx.fill();
         
-        // Pixel Noise/Texture inside
-        ctx.fillStyle = 'rgba(62, 39, 35, 0.3)'; // Semi-transparent dark spots
-        
-        // Simple deterministic noise pattern
-        const innerW = this.width - 2*borderSize;
-        const innerH = this.height - 2*borderSize;
-        const startX = this.x + borderSize;
-        const startY = this.y + borderSize;
-        
-        for(let i=0; i<innerW; i+=8) {
-             for(let j=0; j<innerH; j+=8) {
-                 // Create a checkerboard-like pattern or pseudo-random noise based on coords
-                 if (Math.sin(i * j + this.x) > 0) {
-                      ctx.fillRect(startX + i, startY + j, 4, 4);
-                 }
-             }
-        }
-        
-        // Outer Border
-        ctx.strokeStyle = '#3E2723'; // Very dark brown
-        ctx.lineWidth = 2;
-        ctx.strokeRect(this.x, this.y, this.width, this.height);
-        
-        // Inner screws/bolts (corners)
-        ctx.fillStyle = '#3E2723';
-        ctx.fillRect(this.x + 6, this.y + 6, 4, 4);
-        ctx.fillRect(this.x + this.width - 10, this.y + 6, 4, 4);
-        ctx.fillRect(this.x + 6, this.y + this.height - 10, 4, 4);
-        ctx.fillRect(this.x + this.width - 10, this.y + this.height - 10, 4, 4);
-        
-        // Draw level indicator text
+        // Draw level indicator text for multi-level
         if (this.level > 1) {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            ctx.font = 'bold 16px Arial'; 
+            ctx.fillStyle = '#000000'; // Black text for contrast
+            ctx.font = 'bold 18px Arial'; 
             ctx.textAlign = 'center';
-            ctx.fillText(`${this.level}x`, this.x + this.width / 2, this.y + this.height/2 + 6);
+            ctx.shadowColor = '#FFFFFF';
+            ctx.shadowBlur = 5;
+            ctx.fillText(`${this.level}x`, this.x + this.width / 2, this.y + this.height - 12);
+            ctx.shadowBlur = 0;
             ctx.textAlign = 'left';
         }
+        
+        ctx.restore();
     }
     
     // Get hitbox for collision detection
@@ -193,17 +156,22 @@ let lastSpawnTime = 0;
 let spawnInterval = 2000; // milliseconds
 
 // Update all obstacles
-function updateObstacles() {
-    // Spawn new obstacles
-    const now = Date.now();
-    if (now - lastSpawnTime > spawnInterval) {
-        spawnObstacle();
-        lastSpawnTime = now;
+function updateObstacles(stopSpawning, speed) {
+    // Use provided speed or default to gameSpeed
+    const obstacleSpeed = speed !== undefined ? speed : gameSpeed;
+    
+    // Spawn new obstacles (unless in autopilot)
+    if (!stopSpawning) {
+        const now = Date.now();
+        if (now - lastSpawnTime > spawnInterval) {
+            spawnObstacle();
+            lastSpawnTime = now;
+        }
     }
     
     // Update existing obstacles
     for (let i = obstacles.length - 1; i >= 0; i--) {
-        obstacles[i].update(gameSpeed);
+        obstacles[i].update(obstacleSpeed);
         
         // Check if player passed obstacle (for scoring)
         if (!obstacles[i].scored && obstacles[i].x + obstacles[i].width < player.x) {

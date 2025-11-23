@@ -77,8 +77,8 @@ function drawStartScreen() {
     // Text Shadow/Border
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 4;
-    ctx.strokeText('RUNNER GAME', center, headerY);
-    ctx.fillText('RUNNER GAME', center, headerY);
+    ctx.strokeText('WORLD RUNNER', center, headerY);
+    ctx.fillText('WORLD RUNNER', center, headerY);
     
     // Audio Controls (Top Right)
     drawAudioControls(canvas.width - 80, 20);
@@ -88,19 +88,22 @@ function drawStartScreen() {
     
     // 2. Player Card
     // Card Background - Use a frame/box style instead of plain round rect
-    // Semi-transparent dark box
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    // Dark magenta box with neon pink border
+    ctx.fillStyle = 'rgba(26, 0, 26, 0.9)'; // Very dark magenta
     ctx.beginPath();
     ctx.roundRect(center - cardWidth/2, cardY, cardWidth, cardHeight, 15);
     ctx.fill();
     
-    // Border for the card
-    ctx.strokeStyle = '#FFD700'; // Gold border
+    // Neon pink border
+    ctx.strokeStyle = '#FF1493'; // Deep Pink
     ctx.lineWidth = 4;
+    ctx.shadowColor = '#FF1493';
+    ctx.shadowBlur = 15;
     ctx.stroke();
+    ctx.shadowBlur = 0;
     
     // Character Selection Section
-    ctx.fillStyle = '#FFD700';
+    ctx.fillStyle = '#00FFFF'; // Cyan
     ctx.font = `bold ${tight ? 14 : 16}px Arial`;
     ctx.fillText('SELECT RUNNER', center, cardY + labelOffset - 30);
     
@@ -141,20 +144,20 @@ function drawCardCharacterSelection(centerX, y) {
         
         // Selection Spotlight/Box
         if (selectedCharacter === char) {
-            // Glow
-            ctx.shadowColor = '#FFD700';
-            ctx.shadowBlur = 15;
-            ctx.fillStyle = 'rgba(255, 215, 0, 0.2)';
+            // Neon pink glow
+            ctx.shadowColor = '#FF1493';
+            ctx.shadowBlur = 20;
+            ctx.fillStyle = 'rgba(255, 20, 147, 0.3)';
             ctx.fillRect(x - 5, y - 5 - bounce, charSize + 10, charSize + 10);
             ctx.shadowBlur = 0;
             
-            // Border
-            ctx.strokeStyle = '#FFD700';
+            // Neon pink border
+            ctx.strokeStyle = '#FF1493';
             ctx.lineWidth = 3;
             ctx.strokeRect(x - 5, y - 5 - bounce, charSize + 10, charSize + 10);
         } else {
-            // Unselected Border
-            ctx.strokeStyle = '#ddd';
+            // Unselected Border - Cyan
+            ctx.strokeStyle = '#00FFFF';
             ctx.lineWidth = 2;
             ctx.strokeRect(x, y, charSize, charSize);
         }
@@ -227,41 +230,36 @@ function adjustColor(color, amount) {
     return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16).padStart(6,'0');
 }
 
-// Draw pulsing start button
+// Draw pulsing start button - Neon pink/cyan style
 function drawCardStartButton(centerX, y, scale = 1) {
     const width = 200 * scale;
     const height = 50 * scale;
     const x = centerX - width/2;
     
-    // Pixelated Button Style
-    // Main color
-    ctx.fillStyle = '#4CAF50'; 
+    // Neon Button Style
+    // Gradient from pink to cyan
+    const gradient = ctx.createLinearGradient(x, y, x + width, y + height);
+    gradient.addColorStop(0, '#FF1493'); // Deep Pink
+    gradient.addColorStop(1, '#00FFFF'); // Cyan
+    ctx.fillStyle = gradient;
     ctx.fillRect(x, y, width, height);
     
-    // Highlights/Shadows (3D effect)
-    const border = 4;
-    
-    // Light Top/Left
-    ctx.fillStyle = '#81C784';
-    ctx.fillRect(x, y, width, border);
-    ctx.fillRect(x, y, border, height);
-    
-    // Dark Bottom/Right
-    ctx.fillStyle = '#2E7D32';
-    ctx.fillRect(x, y + height - border, width, border);
-    ctx.fillRect(x + width - border, y, border, height);
+    // Neon glow
+    ctx.strokeStyle = '#FF1493';
+    ctx.lineWidth = 3;
+    ctx.shadowColor = '#FF1493';
+    ctx.shadowBlur = 20;
+    ctx.strokeRect(x, y, width, height);
+    ctx.shadowBlur = 0;
     
     // Text
     ctx.fillStyle = 'white';
-    ctx.font = 'bold 20px Arial'; // Or use a pixel font if available
+    ctx.font = 'bold 20px Arial';
     ctx.textAlign = 'center';
-    ctx.shadowColor = 'rgba(0,0,0,0.5)';
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetX = 2;
-    ctx.shadowOffsetY = 2;
+    ctx.shadowColor = 'rgba(0,0,0,0.8)';
+    ctx.shadowBlur = 5;
     ctx.fillText('START RUN', centerX, y + 33);
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
+    ctx.shadowBlur = 0;
     
     // Hit area
     window.startButton = {
@@ -288,8 +286,8 @@ function drawGameOverScreen() {
     // Use side-by-side if we have enough width (e.g., tablet/desktop)
     const sideBySide = canvas.width >= 750; 
 
-    // Dark overlay
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+    // Dark overlay - Dark magenta tint
+    ctx.fillStyle = 'rgba(26, 0, 26, 0.9)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // --- HEADER ---
@@ -297,12 +295,16 @@ function drawGameOverScreen() {
     const nameSize = mobile ? 18 : 24;
     const headerY = mobile ? 40 : 60;
     
-    ctx.fillStyle = '#FF4444';
+    // Neon pink title with glow
+    ctx.fillStyle = '#FF1493';
     ctx.font = `bold ${titleSize}px Arial`;
     ctx.textAlign = 'center';
+    ctx.shadowColor = '#FF1493';
+    ctx.shadowBlur = 20;
     ctx.fillText('GAME OVER', canvas.width / 2, headerY);
+    ctx.shadowBlur = 0;
     
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = '#00FFFF'; // Cyan
     ctx.font = `${nameSize}px Arial`;
     ctx.fillText(`Player: ${player.name}`, canvas.width / 2, headerY + (mobile ? 30 : 40));
 

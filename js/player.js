@@ -12,14 +12,14 @@ class Player {
         
         // Physics properties
         this.velocityY = 0;
-        this.gravity = 0.6;
+        this.gravity = 1.0; // Increased from 0.6 for faster falling
         this.isOnGround = false;
         this.jumpLevel = 0; // Current jump level for visual feedback
         this.jumpCount = 0; // Track number of jumps used
         this.maxJumps = 3; // Maximum jumps (1 ground + 2 air)
         
-        // Jump power for different levels (index = jump level)
-        this.jumpPowers = [0, -11, -15, -18, -21];
+        // Jump power for different levels (increased proportionally to maintain height)
+        this.jumpPowers = [0, -14.5, -19.8, -23.8, -27.7];
         
         // Scoring tracking
         this.lastClearType = 'ground'; // 'ground', 'aerial', 'platform'
@@ -72,7 +72,7 @@ class Player {
         // Mid-air boost: give upward velocity boost
         // Stronger boost if timed at peak (when velocityY is near 0)
         const atPeak = Math.abs(this.velocityY) < 2;
-        const boostPower = atPeak ? -10 : -8; // Stronger at peak
+        const boostPower = atPeak ? -13.2 : -10.6; // Increased for faster movement
         
         this.velocityY = boostPower;
         this.jumpLevel = level;

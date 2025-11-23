@@ -1,6 +1,6 @@
-# Runner Game 🎮
+# World Runner 🎮
 
-A fun endless runner game built with vanilla JavaScript, HTML5 Canvas, and CSS. Perfect for parent-child coding projects!
+A fun endless runner game with a vibrant Geometry Dash-inspired design, built with vanilla JavaScript, HTML5 Canvas, and CSS.
 
 ## How to Play
 
@@ -93,4 +93,3 @@ A fun endless runner game built with vanilla JavaScript, HTML5 Canvas, and CSS. 
 - **Responsive design** for desktop and mobile
 
 Enjoy building and playing! 🚀
-

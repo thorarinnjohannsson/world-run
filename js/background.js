@@ -61,7 +61,7 @@ class ParallaxBackground {
 
         // 2. MOUNTAINS (Far, Slow)
         this.layers.push(new BackgroundLayer(0.2, (ctx, width, groundY) => {
-            ctx.fillStyle = '#9EA7B8'; // Grey-blue mountains
+            ctx.fillStyle = '#8B008B'; // Dark Magenta mountains
             
             // Draw a few peaks
             ctx.beginPath();
@@ -73,8 +73,8 @@ class ParallaxBackground {
             ctx.lineTo(width, groundY);
             ctx.fill();
             
-            // Snow caps
-            ctx.fillStyle = 'white';
+            // Neon cyan caps
+            ctx.fillStyle = '#00FFFF';
             ctx.beginPath();
             ctx.moveTo(width * 0.2, groundY - 150);
             ctx.lineTo(width * 0.2 + 20, groundY - 120);
@@ -90,7 +90,7 @@ class ParallaxBackground {
 
         // 3. HILLS (Mid-distance)
         this.layers.push(new BackgroundLayer(0.4, (ctx, width, groundY) => {
-            ctx.fillStyle = '#689F38'; // Dim green
+            ctx.fillStyle = '#C71585'; // Medium Violet Red
             ctx.beginPath();
             ctx.moveTo(0, groundY);
             
@@ -119,11 +119,12 @@ class ParallaxBackground {
         this.layers.forEach(layer => layer.update(gameSpeed));
     }
 
-    draw(ctx, canvasWidth, groundY) {
-        // Sky Gradient (Static)
+    draw(ctx, canvasWidth, groundY, skyColors = null) {
+        // Sky Gradient (Dynamic or default Pink/Magenta)
+        const colors = skyColors || ['#FF00FF', '#FF1493'];
         const skyGradient = ctx.createLinearGradient(0, 0, 0, groundY);
-        skyGradient.addColorStop(0, '#5FB0E8'); 
-        skyGradient.addColorStop(1, '#87CEEB');
+        skyGradient.addColorStop(0, colors[0]); 
+        skyGradient.addColorStop(1, colors[1]);
         ctx.fillStyle = skyGradient;
         ctx.fillRect(0, 0, canvasWidth, groundY);
 
