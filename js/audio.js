@@ -10,95 +10,77 @@ class AudioManager {
         this.isPlaying = false;
         this.nextNoteTime = 0;
         this.tick = 0; // 16th note counter
-        this.tempo = 145; // High Energy Techno/Trance Tempo
+        this.tempo = 170; // Geometry Dash style: Fast, intense
         this.lookahead = 25.0; 
         this.scheduleAheadTime = 0.1;
         this.timerID = null;
+        this.section = 'intro'; // Track song sections for build-ups/drops
         
-        // --- Song Structure ---
-        // Grid: 16th notes
-        // q = 4 ticks, e = 2 ticks, s = 1 tick
+        // --- GEOMETRY DASH INSPIRED SEQUENCE ---
+        // Aggressive, high-energy electronic with build-ups and drops
         
-        const s = 1; // 16th note (1 tick)
-        const e = 2; // 8th note (2 ticks)
-        const q = 4; // Quarter note (4 ticks)
+        const s = 1; // 16th note
+        const e = 2; // 8th note
+        const q = 4; // Quarter note
         
-        // 1. Main Riff (The "Hook") - D Minor
-        // Matches the pattern user liked, adapted to 16th grid
-        const riffPattern = (root) => [
-            {n: root+'3', d: s}, {n: root+'3', d: s}, {n: root+'4', d: s}, {n: 'A4', d: s+s+s}, // D D ^D A...
-            {n: 'G#4', d: e}, {n: 'G4', d: e}, {n: 'F4', d: e+e},
-            {n: 'D4', d: s}, {n: 'F4', d: s}, {n: 'G4', d: s}
-        ];
-        // Note: The durations above need to sum to 16 ticks (1 bar) or similar to loop correctly.
-        // Sum: 1+1+1+3 = 6. 2+2+4 = 8. 1+1+1 = 3. Total = 17?
-        // Let's adjust to fit a 4/4 bar (16 ticks) tighter.
-        // D(1) D(1) ^D(1) A(3) -> 6 ticks.
-        // G#(2) G(2) F(2) -> 6 ticks. Total 12.
-        // D(1) F(1) G(1) -> 3 ticks. Total 15. 
-        // Add rest or sustain last note. Let's sustain G4 by 1 more tick.
-        
-        const createRiff = (base, octaveOffset = 0) => {
-            // Helper to transpose the main melodic contour
-            // Original: D, D, ^D, A, G#, G, F, D, F, G
-            // Intervals relative to D: 0, 0, +12, +7, +6, +5, +3, 0, +3, +5
-            const intervals = [0, 0, 12, 7, 6, 5, 3, 0, 3, 5];
-            const durations = [s, s, s, 3, e, e, e, s, s, 2]; // Sum = 16
-            
-            return intervals.map((semitones, i) => {
-                // Calculate note name logic roughly or just hardcode the variants
-                // For simplicity in this generated system, we'll stick to the explicit definition approach
-                return { n: null, d: durations[i] }; // Placeholder
-            });
-        };
-
-        // explicit phrases for better control
-        const phraseD = [
-            {n: 'D4', d: s}, {n: 'D4', d: s}, {n: 'D5', d: s}, {n: 'A4', d: 3}, 
-            {n: 'G#4', d: e}, {n: 'G4', d: e}, {n: 'F4', d: e},
-            {n: 'D4', d: s}, {n: 'F4', d: s}, {n: 'G4', d: 2}
+        // Main aggressive riff - Dm pentatonic scale
+        const mainRiff = [
+            {n: 'D4', d: s}, {n: 'F4', d: s}, {n: 'A4', d: s}, {n: 'D5', d: s},
+            {n: 'C5', d: e}, {n: 'A4', d: s}, {n: 'F4', d: s},
+            {n: 'D4', d: s}, {n: 'F4', d: s}, {n: 'A4', d: e}, {n: 'C5', d: e}
         ]; // 16 ticks
         
-        const phraseC = [
-            {n: 'C4', d: s}, {n: 'C4', d: s}, {n: 'D5', d: s}, {n: 'A4', d: 3}, 
-            {n: 'G#4', d: e}, {n: 'G4', d: e}, {n: 'F4', d: e},
-            {n: 'D4', d: s}, {n: 'F4', d: s}, {n: 'G4', d: 2}
-        ];
-
-        const phraseBb = [
-            {n: 'A#3', d: s}, {n: 'A#3', d: s}, {n: 'D5', d: s}, {n: 'A4', d: 3}, 
-            {n: 'G#4', d: e}, {n: 'G4', d: e}, {n: 'F4', d: e},
-            {n: 'D4', d: s}, {n: 'F4', d: s}, {n: 'G4', d: 2}
-        ];
-        
-        // 2. Bridge / Build-up
-        // Rising Arps: F-A-C-E...
-        const bridgePhrase = [
-            {n: 'F4', d: e}, {n: 'A4', d: e}, {n: 'C5', d: e}, {n: 'E5', d: e},
-            {n: 'G4', d: e}, {n: 'B4', d: e}, {n: 'D5', d: e}, {n: 'G5', d: e}
+        // Build-up arpeggio (climbing tension)
+        const buildUp = [
+            {n: 'D4', d: s}, {n: 'F4', d: s}, {n: 'A4', d: s}, {n: 'C5', d: s},
+            {n: 'D5', d: s}, {n: 'F5', d: s}, {n: 'A5', d: s}, {n: 'D6', d: s},
+            {n: 'A5', d: s}, {n: 'F5', d: s}, {n: 'D5', d: s}, {n: 'C5', d: s},
+            {n: 'A4', d: s}, {n: 'F4', d: s}, {n: 'D4', d: s}, {n: 'D4', d: s}
         ]; // 16 ticks
-
-        // 3. Chorus - High energy, sustained
-        const chorusPhrase = [
-             {n: 'D5', d: 6}, {n: 'A4', d: 2}, {n: 'F4', d: 4}, {n: 'D4', d: 4},
-             {n: 'A#4', d: 6}, {n: 'C5', d: 2}, {n: 'D5', d: 8}
-        ]; // 32 ticks (2 bars) - wait, 6+2+4+4 = 16. 6+2+8 = 16. Yes.
-
-        // --- SEQUENCE ---
-        // Construct the full loop
+        
+        // Drop/Chorus - Heavy, sustained power notes
+        const dropRiff = [
+            {n: 'D3', d: q}, {n: 'D3', d: q}, {n: 'C3', d: q}, {n: 'A2', d: q},
+            {n: 'F3', d: q}, {n: 'D3', d: q}, {n: 'A2', d: e}, {n: 'D3', d: e+q}
+        ]; // 32 ticks (2 bars)
+        
+        // Intense lead line
+        const leadLine = [
+            {n: 'F5', d: e}, {n: 'E5', d: e}, {n: 'D5', d: e}, {n: 'C5', d: e},
+            {n: 'D5', d: e}, {n: 'A4', d: e}, {n: 'F4', d: q},
+            {n: 'A4', d: s}, {n: 'C5', d: s}, {n: 'D5', d: e}, {n: 'F5', d: q}
+        ]; // 16 ticks
+        
+        // Construct full loop with build-ups and drops like Geometry Dash
         this.sequence = [
-            // Intro (Riff A only, filtered?)
-            ...phraseD, ...phraseD,
-            // Full Riff
-            ...phraseD, ...phraseC, ...phraseBb, ...phraseC,
-            // Bridge
-            ...bridgePhrase, ...bridgePhrase,
-            // Chorus
-            ...chorusPhrase, ...chorusPhrase
+            // Intro - Main riff (16 bars)
+            ...mainRiff, ...mainRiff, ...mainRiff, ...mainRiff,
+            ...mainRiff, ...mainRiff, ...mainRiff, ...mainRiff,
+            ...mainRiff, ...mainRiff, ...mainRiff, ...mainRiff,
+            ...mainRiff, ...mainRiff, ...mainRiff, ...mainRiff,
+            
+            // Build-up (8 bars)
+            ...buildUp, ...buildUp, ...buildUp, ...buildUp,
+            ...buildUp, ...buildUp, ...buildUp, ...buildUp,
+            
+            // DROP! (16 bars)
+            ...dropRiff, ...leadLine,
+            ...dropRiff, ...leadLine,
+            ...dropRiff, ...leadLine,
+            ...dropRiff, ...leadLine,
+            ...dropRiff, ...leadLine,
+            ...dropRiff, ...leadLine,
+            ...dropRiff, ...leadLine,
+            ...dropRiff, ...leadLine,
+            
+            // Back to main (8 bars)
+            ...mainRiff, ...mainRiff, ...mainRiff, ...mainRiff,
+            ...mainRiff, ...mainRiff, ...mainRiff, ...mainRiff,
+            
+            // Final build and drop
+            ...buildUp, ...buildUp, ...buildUp, ...buildUp,
+            ...dropRiff, ...leadLine, ...dropRiff, ...leadLine
         ];
-
-        // Flatten the sequence into a continuous stream of notes with absolute timing in ticks
-        // actually, the scheduler is better suited to process the array step by step
         
         this.frequencies = this.createNoteTable();
         
@@ -225,128 +207,189 @@ class AudioManager {
         
         const duration = durationTicks * ((60.0 / this.tempo) / 4);
         
-        // Modern Retro Lead: Square + Sawtooth + Lowpass
+        // Geometry Dash style: Aggressive square wave lead with distortion
         const osc1 = this.ctx.createOscillator();
         const osc2 = this.ctx.createOscillator();
+        const osc3 = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         const filter = this.ctx.createBiquadFilter();
+        const distortion = this.ctx.createWaveShaper();
 
+        // Triple oscillator for thickness
         osc1.type = 'square';
         osc1.frequency.value = this.frequencies[noteName];
 
-        osc2.type = 'sawtooth';
-        osc2.detune.value = 8; // Detune for thickness
+        osc2.type = 'square';
+        osc2.detune.value = 12; // Slightly detuned for fatness
         osc2.frequency.value = this.frequencies[noteName];
 
-        // Filter Movement
+        osc3.type = 'sawtooth';
+        osc3.detune.value = -12;
+        osc3.frequency.value = this.frequencies[noteName];
+
+        // Aggressive filter sweep
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(1500, time);
-        filter.frequency.exponentialRampToValueAtTime(500, time + 0.1);
+        filter.Q.value = 8; // Resonance for that "wub" sound
+        filter.frequency.setValueAtTime(3000, time);
+        filter.frequency.exponentialRampToValueAtTime(800, time + duration * 0.3);
+        filter.frequency.setValueAtTime(800, time + duration * 0.3);
+        filter.frequency.exponentialRampToValueAtTime(400, time + duration);
+
+        // Simple distortion
+        distortion.curve = this.makeDistortionCurve(50);
+        distortion.oversample = '2x';
 
         osc1.connect(gain);
         osc2.connect(gain);
+        osc3.connect(gain);
         gain.connect(filter);
-        filter.connect(this.ctx.destination);
+        filter.connect(distortion);
+        distortion.connect(this.ctx.destination);
 
-        gain.gain.setValueAtTime(0.1, time);
+        // Punchy envelope
+        gain.gain.setValueAtTime(0.15, time);
+        gain.gain.linearRampToValueAtTime(0.18, time + 0.01);
         gain.gain.exponentialRampToValueAtTime(0.01, time + duration);
 
         osc1.start(time);
         osc2.start(time);
+        osc3.start(time);
         osc1.stop(time + duration);
         osc2.stop(time + duration);
+        osc3.stop(time + duration);
+    }
+
+    makeDistortionCurve(amount) {
+        const k = amount;
+        const samples = 44100;
+        const curve = new Float32Array(samples);
+        const deg = Math.PI / 180;
+        
+        for (let i = 0; i < samples; i++) {
+            const x = (i * 2) / samples - 1;
+            curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+        }
+        return curve;
     }
 
     triggerBass(noteIndex, time, durationTicks, beat16) {
-        // Bass follows the chord progression roughly
-        // Phrase length is 10 notes in the riff... this index logic is tricky with variable lengths.
-        // Let's assume a simple progression loop based on the total note count so far?
-        // Easier: Bass plays a rhythmic pattern on a root note determined by `currentNoteIndex` ranges.
+        // Geometry Dash style: MASSIVE wobble bass on certain sections
         
-        // Riff Section (approx first 20 notes): D
-        // Variation (next 20): C -> Bb
-        // Let's simplify: Bass triggers on the Off-beat (ticks 2, 6, 10, 14) for "House" feel
-        // OR rolling 16ths.
-        
-        if (beat16 % 2 !== 0) return; // Only trigger on 8th notes for driving feel
+        // Only trigger on 8th notes
+        if (beat16 % 2 !== 0) return;
 
+        // Determine root based on progression
         let root = 'D2';
-        const cycle = this.currentNoteIndex % 40;
-        if (cycle >= 10 && cycle < 20) root = 'C2';
-        if (cycle >= 20 && cycle < 30) root = 'A#1';
-        if (cycle >= 30) root = 'C2'; // Turnaround
+        const cycle = this.currentNoteIndex % 100;
+        if (cycle >= 25 && cycle < 50) root = 'F2';
+        if (cycle >= 50 && cycle < 75) root = 'C2';
+        if (cycle >= 75) root = 'A1';
 
         if (this.frequencies[root]) {
             const osc = this.ctx.createOscillator();
+            const osc2 = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             const filter = this.ctx.createBiquadFilter();
 
+            // Dual saw for thick bass
             osc.type = 'sawtooth';
             osc.frequency.value = this.frequencies[root];
+            
+            osc2.type = 'sawtooth';
+            osc2.detune.value = -7; // Detune for width
+            osc2.frequency.value = this.frequencies[root];
 
-            // Sidechain Simulation:
-            // Bass is quieter when Kick hits (beats 0, 4, 8, 12)
-            // Since we are triggering bass on 8th notes (0, 2, 4...), 
-            // the ones on the beat (0,4) coincide with Kick.
-            // We duck the volume on those, or emphasize the off-beat (2, 6).
-            
-            const isKickHit = (beat16 % 4 === 0);
-            const vol = isKickHit ? 0.1 : 0.25; // Louder on offbeat
-            
+            // Wobble effect - modulate filter frequency
             filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(400, time);
-            filter.frequency.linearRampToValueAtTime(1000, time + 0.1); // Pluck
+            filter.Q.value = 15; // High resonance for that "wub wub"
+            
+            const wobbleSpeed = 8; // Hz
+            const wobbleDepth = 400;
+            const baseFreq = 200;
+            
+            // Create LFO wobble
+            const wobbleTime = time % (1 / wobbleSpeed);
+            const wobblePhase = wobbleTime * wobbleSpeed * Math.PI * 2;
+            const wobbleValue = baseFreq + Math.sin(wobblePhase) * wobbleDepth;
+            
+            filter.frequency.setValueAtTime(wobbleValue, time);
+            filter.frequency.exponentialRampToValueAtTime(
+                baseFreq + Math.sin((wobblePhase + 0.2)) * wobbleDepth, 
+                time + 0.1
+            );
 
+            const isKickHit = (beat16 % 4 === 0);
+            const vol = isKickHit ? 0.15 : 0.35; // Sidechain pumping
+            
             gain.gain.setValueAtTime(vol, time);
-            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.25);
 
             osc.connect(filter);
+            osc2.connect(filter);
             filter.connect(gain);
             gain.connect(this.ctx.destination);
 
             osc.start(time);
-            osc.stop(time + 0.2);
+            osc2.start(time);
+            osc.stop(time + 0.25);
+            osc2.stop(time + 0.25);
         }
     }
 
     triggerKick(time) {
+        // Geometry Dash style: Deep, punchy 808 kick
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
         
-        osc.frequency.setValueAtTime(150, time);
-        osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.2);
+        osc.type = 'sine';
         
-        gain.gain.setValueAtTime(0.6, time);
-        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+        // Pitch sweep for punch
+        osc.frequency.setValueAtTime(180, time);
+        osc.frequency.exponentialRampToValueAtTime(50, time + 0.05);
+        osc.frequency.exponentialRampToValueAtTime(30, time + 0.3);
         
-        osc.connect(gain);
+        // Lowpass for thump
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(200, time);
+        filter.frequency.exponentialRampToValueAtTime(50, time + 0.3);
+        
+        gain.gain.setValueAtTime(0.8, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.3);
+        
+        osc.connect(filter);
+        filter.connect(gain);
         gain.connect(this.ctx.destination);
         
         osc.start(time);
-        osc.stop(time + 0.2);
+        osc.stop(time + 0.3);
     }
 
     triggerSnare(time) {
-        // White noise burst + tone
-        this.createNoiseBurst(time, 0.1, 1000, 0.2);
+        // Geometry Dash style: Tight, snappy snare with more noise
+        this.createNoiseBurst(time, 0.12, 2000, 0.35);
         
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
+        
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(200, time);
-        gain.gain.setValueAtTime(0.1, time);
-        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+        osc.frequency.setValueAtTime(220, time);
+        osc.frequency.exponentialRampToValueAtTime(180, time + 0.05);
+        
+        gain.gain.setValueAtTime(0.2, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.12);
         
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start(time);
-        osc.stop(time + 0.1);
+        osc.stop(time + 0.12);
     }
 
     triggerHat(time, open) {
-        const dur = open ? 0.1 : 0.03;
-        const vol = open ? 0.1 : 0.05;
-        this.createNoiseBurst(time, dur, 5000, vol);
+        // Crisper, more aggressive hi-hats
+        const dur = open ? 0.15 : 0.04;
+        const vol = open ? 0.15 : 0.08;
+        this.createNoiseBurst(time, dur, 8000, vol);
     }
 
     createNoiseBurst(time, duration, freq, vol) {

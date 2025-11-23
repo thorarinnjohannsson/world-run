@@ -53,10 +53,11 @@ class LevelManager {
         ];
     }
     
-    // Get score needed for next level (5% incremental increase)
-    // Base 3000 points (~3-4 minutes of gameplay with current scoring)
+    // Get score needed for next level (exponential increase)
+    // Level 1: 3000, Level 2: 6000, Level 3: 9000, Level 4: 12000...
+    // Each level requires 3000 more points than previous
     getScoreThreshold() {
-        return Math.floor(3000 * Math.pow(1.05, this.currentLevel - 1));
+        return 3000 * this.currentLevel;
     }
     
     // Get colors for current level
@@ -67,7 +68,7 @@ class LevelManager {
     // Get score needed for current level progress
     getCurrentLevelProgress(score) {
         const previousThreshold = this.currentLevel > 1 
-            ? Math.floor(3000 * Math.pow(1.05, this.currentLevel - 2))
+            ? 3000 * (this.currentLevel - 1)
             : 0;
         const currentThreshold = this.getScoreThreshold();
         const progressInLevel = score - previousThreshold;
